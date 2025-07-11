@@ -1,0 +1,142 @@
+<div class="container mat-typography">
+  <h2 class="mat-headline">Analizador de Imagenes con IA</h2>
+
+  <!-- Persona a buscar -->
+  <mat-card>
+    <mat-card-title>A quien buscar</mat-card-title>
+    <p class="subtitle">Sube o toma la foto de quien deseas buscar</p>
+    <mat-card-content>
+      <div class="input-group">
+        <input #fileInput0 type="file" (change)="onFileSelected($event, 0)" accept="image/*" hidden />
+        <button mat-raised-button color="accent" (click)="fileInput0.click()">
+          <mat-icon>upload</mat-icon> Seleccionar archivo
+        </button>
+        <button mat-raised-button color="primary" (click)="startCamera(0)">
+          <mat-icon>photo_camera</mat-icon> Tomar Foto
+        </button>
+        <button mat-raised-button (click)="clearImage(0, fileInput0)">
+          <mat-icon>delete</mat-icon> Limpiar imagen
+        </button>
+      </div>
+
+      <div class="preview-row">
+        <video *ngIf="cameraActive[0]" #video0 autoplay></video>
+        <button *ngIf="cameraActive[0]" mat-raised-button color="accent" (click)="takePhoto(0)">
+          <mat-icon>camera</mat-icon>Capturar
+        </button>
+        <img
+          *ngIf="imagePreviews[0]"
+          [src]="imagePreviews[0]"
+          class="preview-image"
+          (click)="openImageDialog(imagePreviews[0])"
+        />
+        <p *ngIf="imageFiles[0]?.name && !isFromCamera[0]" class="file-name">
+          Archivo seleccionado: {{ imageFiles[0].name }}
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Dónde buscar -->
+  <mat-card class="mt-3">
+    <mat-card-title>Donde deseas buscar</mat-card-title>
+    <p class="subtitle">Sube o toma la foto donde deseas buscar</p>
+    <mat-card-content>
+      <div class="input-group">
+        <input #fileInput1 type="file" (change)="onFileSelected($event, 1)" accept="image/*" hidden />
+        <button mat-raised-button color="accent" (click)="fileInput1.click()">
+          <mat-icon>upload</mat-icon> Seleccionar archivo
+        </button>
+        <button mat-raised-button color="primary" (click)="startCamera(1)">
+          <mat-icon>photo_camera</mat-icon> Tomar Foto
+        </button>
+        <button mat-raised-button (click)="clearImage(1, fileInput1)">
+          <mat-icon>delete</mat-icon> Limpiar imagen
+        </button>
+      </div>
+
+      <div class="preview-row">
+        <video *ngIf="cameraActive[1]" #video1 autoplay></video>
+        <button *ngIf="cameraActive[1]" mat-raised-button color="accent" (click)="takePhoto(1)">
+          <mat-icon>camera</mat-icon>Capturar
+        </button>                
+        <img
+          *ngIf="imagePreviews[1]"
+          [src]="imagePreviews[1]"
+          class="preview-image"
+          (click)="openImageDialog(imagePreviews[1])"
+        />
+        <p *ngIf="imageFiles[1]?.name && !isFromCamera[1]" class="file-name">
+          Archivo seleccionado: {{ imageFiles[1].name }}
+        </p>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Análisis -->
+  <mat-card class="mt-3">
+    <mat-card-content>
+       
+      <!-- Botón centrado SIEMPRE -->
+      <div class="button-center">
+        <button mat-raised-button color="warn" (click)="analizarFotos()">
+          <mat-icon>search</mat-icon>Analizar fotos
+        </button>
+      </div>
+
+      <!-- Mensaje de validación -->
+      <div *ngIf="validationMessage" class="validation-message">
+        <mat-icon color="warn">warning</mat-icon> {{ validationMessage }}
+      </div>
+
+      <!-- Resultado debajo -->
+      <div *ngIf="resultMessage || resultData" class="response-box">
+        <h3>Resultado del análisis</h3>
+
+        <p><strong>¿Coincidencia?:</strong> {{ resultData?.verified ? 'Sí' : 'No' }}</p>
+        <p><strong>Confianza:</strong> {{ (resultData?.confidence * 100) | number:'1.0-2' }}%</p>
+
+        <h4>Métricas:</h4>
+        <ul>
+          <li><strong>Distancia:</strong> {{ resultData?.metrics.distance | number:'1.2-4' }}</li>
+          <li><strong>Umbral:</strong> {{ resultData?.metrics.threshold }}</li>
+          <li><strong>Modelo:</strong> {{ resultData?.metrics.model }}</li>
+          <li><strong>Detector:</strong> {{ resultData?.metrics.detector }}</li>
+          <li><strong>Tiempo de procesamiento:</strong> {{ resultData?.metrics.processing_time }} segundos</li>
+        </ul>
+
+        <h4>Detección de rostros:</h4>
+        <ul>
+          <li><strong>Persona a buscar:</strong> {{ resultData?.faces.image1_detected ? 'Rostro detectado' : 'No se detectó rostro' }}</li>
+          <li><strong>Dónde buscar:</strong> {{ resultData?.faces.image2_detected ? 'Rostro detectado' : 'No se detectó rostro' }}</li>
+        </ul>
+      </div>
+
+    </mat-card-content>
+    
+    <mat-card-content *ngIf="result">
+      <p class="result">{{ result }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Diálogo para ver imagen en grande -->
+  <ng-template #imageDialog let-data>
+    <h2 mat-dialog-title>Vista ampliada</h2>
+    <mat-dialog-content>
+      <img [src]="selectedImage" class="full-image" />
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cerrar</button>
+    </mat-dialog-actions>
+  </ng-template>
+
+  <!-- Spinner -->
+  <ng-template #loadingDialog>
+    <div style="display: flex; flex-direction: column; align-items: center; padding: 2rem;">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p style="margin-top: 1rem;">Analizando imágenes...</p>
+    </div>
+  </ng-template>
+
+</div>
