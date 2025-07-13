@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { TemplateRef } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
+
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
@@ -14,7 +15,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class FotoAnalyzerComponent {
 @ViewChild('video0') video0!: ElementRef<HTMLVideoElement>;
 @ViewChild('video1') video1!: ElementRef<HTMLVideoElement>;
+@ViewChild('loadingDialog') loadingDialogTemplate!: TemplateRef<any>;
 
+  private loadingDialogRef: any;
   imageFiles: File[] = [null, null];
   imagePreviews: string[] = [null, null];
   cameraPhoto: string | null = null;
@@ -27,6 +30,7 @@ export class FotoAnalyzerComponent {
 
 
   constructor(private http: HttpClient, private dialog: MatDialog) {}
+
 
   onFileSelected(event: any, index: number): void {
     const file = event.target.files[0];
@@ -70,7 +74,7 @@ takePhoto(index: number) {
 
   ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-  const photoDataUrl = canvas.toDataURL('image/png');
+  const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92); // 92% calidad
   const blob = this.dataURLtoBlob(photoDataUrl);
 
   this.imageFiles[index] = new File([blob], `photo-${index}.png`, { type: 'image/png' });
@@ -86,42 +90,42 @@ takePhoto(index: number) {
   this.cameraActive[index] = false;
 }
 
-
-analizarFotos() {
-  this.validationMessage = '';
-  this.result = '';
+async analizarFotos() {
+  this.resultMessage = '';
   this.resultData = null;
 
   if (!this.imagePreviews[0] || !this.imagePreviews[1]) {
-    this.validationMessage = 'Por favor, sube o toma una foto en ambas secciones antes de analizar.';
+    this.resultMessage = 'Por favor, sube o toma una foto en ambas secciones antes de analizar';
     return;
   }
 
-  const image1Base64 = this.imagePreviews[0];
-  const image2Base64 = this.imagePreviews[1];
+  this.showLoading();
 
-  const payload = {
-    image1: image1Base64,
-    image2: image2Base64,
-    model: 'OpenFace',
-    threshold: 0.5
-  };
+  try {
+    const resizedImage1 = await this.resizeImage(this.imagePreviews[0]);
+    const resizedImage2 = await this.resizeImage(this.imagePreviews[1]);
 
-  const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  const dialogRef = this.dialog.open(this.loadingDialog, { disableClose: true });
+    const body = {
+      image1: resizedImage1,
+      image2: resizedImage2,
+      model: 'OpenFace',
+      threshold: 0.5
+    };
 
-  this.http.post<any>('https://fn-deep-face-chczfwd4dvhdh2eh.eastus2-01.azurewebsites.net/api/verifymetodo', payload, { headers }).subscribe({
-    next: (res) => {
-      this.resultData = res;
-      dialogRef.close();
-    },
-    error: (err) => {
-      console.error('Error al analizar:', err);
-      this.result = 'Error al analizar las imágenes.';
-      dialogRef.close();
-    }
-  });
+    const response = await this.http.post<any>('https://fn-deep-face-chczfwd4dvhdh2eh.eastus2-01.azurewebsites.net/api/verifymetodo', body, {
+      headers: { 'Content-Type': 'application/json' }
+    }).toPromise();
+
+    this.resultData = response;
+    this.resultMessage = '';
+  } catch (error) {
+    console.error('Error al analizar:', error);
+    this.resultMessage = 'Ocurrió un error al procesar las imágenes.';
+  } finally {
+    this.closeLoading();
+  }
 }
+
 
 private dataURLtoBlob(dataURL: string): Blob {
   const byteString = atob(dataURL.split(',')[1]);
@@ -144,7 +148,6 @@ openImageDialog(imageUrl: string): void {
   this.dialog.open(this.imageDialogTemplate);
 }
 
-@ViewChild('imageDialog') imageDialogTemplate!: TemplateRef<any>;
 
 private fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -155,7 +158,67 @@ private fileToBase64(file: File): Promise<string> {
   });
 }
 
-@ViewChild('loadingDialog') loadingDialog!: TemplateRef<any>;
+private resizeImage(base64: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
 
+      // No escalar si ya es suficientemente pequeño
+      if (width < 300 && height < 300) {
+        return resolve(base64);
+      }
+
+      // Escalar para que el lado menor sea 300px y el otro proporcional
+      if (width < height) {
+        const scaleFactor = 300 / width;
+        width = 300;
+        height = Math.round(height * scaleFactor);
+      } else {
+        const scaleFactor = 300 / height;
+        height = 300;
+        width = Math.round(width * scaleFactor);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convertir a JPEG con calidad 0.9
+      const resizedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+      resolve(resizedBase64);
+    };
+
+    img.onerror = (e) => {
+      console.error('Error al cargar imagen para redimensionar', e);
+      resolve(base64); // Si falla, se usa la imagen original
+    };
+
+    img.src = base64;
+  });
+}
+
+ // 👇 Mostrar el diálogo de carga
+  showLoading() {
+    this.loadingDialogRef = this.dialog.open(this.loadingDialogTemplate, {
+      disableClose: true
+    });
+  }
+
+  // 👇 Cerrar el diálogo de carga
+  closeLoading() {
+    if (this.loadingDialogRef) {
+      this.loadingDialogRef.close();
+      this.loadingDialogRef = null;
+    }
+  }
+
+
+@ViewChild('imageDialog') imageDialogTemplate!: TemplateRef<any>;
+@ViewChild('loadingDialog') loadingDialog!: TemplateRef<any>;
 
 }
