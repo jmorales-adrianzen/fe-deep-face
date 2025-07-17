@@ -1,20 +1,20 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer class="sidenav" mode="side" opened>
+  <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">  
     <mat-toolbar>Menú</mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item routerLink="/atributos-faciales" routerLinkActive="active">
+      <a mat-list-item routerLink="/atributos-faciales" routerLinkActive="active" (click)="isMobile ? drawer.close() : null">        
         <mat-icon matListIcon>badge</mat-icon>
         <span>Atributos Faciales</span>
       </a>
-      <a mat-list-item routerLink="/foto-analyzer" routerLinkActive="active">
+      <a mat-list-item routerLink="/foto-analyzer" routerLinkActive="active" (click)="isMobile ? drawer.close() : null">      
         <mat-icon matListIcon>face</mat-icon>
         <span>Análisis de Imagen</span>
       </a>
-      <a mat-list-item routerLink="/parecido-padres" routerLinkActive="active">
+      <a mat-list-item routerLink="/parecido-padres" routerLinkActive="active" (click)="isMobile ? drawer.close() : null">        
         <mat-icon matListIcon>group</mat-icon>
         <span>Parecido de Padres</span>
       </a>
-      <a mat-list-item routerLink="/similitud-artista" routerLinkActive="active">
+      <a mat-list-item routerLink="/similitud-artista" routerLinkActive="active" (click)="isMobile ? drawer.close() : null">               
         <mat-icon matListIcon>palette</mat-icon>
         <span>Similitud de Artista</span>
       </a>
