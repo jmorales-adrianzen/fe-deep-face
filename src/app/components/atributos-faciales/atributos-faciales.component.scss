@@ -1,0 +1,144 @@
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.preview-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.camera-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+video {
+    max-height: 200px;
+    width: auto;
+    border-radius: 8px;
+    object-fit: contain;
+    transform: scaleX(-1); // Esto invierte horizontalmente
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.result {
+    font-weight: bold;
+    margin-top: 1rem;
+    color: #4caf50;
+}
+
+.mt-3 {
+    margin-top: 2rem;
+}
+
+.full-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.preview-image {
+    max-height: 200px;
+    width: auto;
+    border-radius: 8px;
+    object-fit: contain;
+    cursor: zoom-in;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+    font-size: 14px;
+    margin: 0 0 0.5rem 1rem;
+    color: #555;
+}
+
+.response-box {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: #f0f4ff;
+    border-left: 4px solid #3f51b5;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // sombra suave
+
+    h4 {
+        margin-top: 1rem;
+        font-weight: 600;
+    }
+
+    ul {
+        padding-left: 1.2rem;
+        margin: 0;
+        list-style-type: disc;
+    }
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.button-center {
+    display: flex;
+    justify-content: center;
+    margin: 0rem 0 0rem;
+}
+
+mat-card {
+    padding: 1rem !important;
+}
+
+.analyze-button {
+    background-color: #007bff;
+    color: #9e2f2f;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(87, 9, 9, 0.15);
+
+    &:hover {
+        background-color: #0056b3;
+    }
+}
+
+.validation-message {
+    margin-top: 1rem;
+    color: #d32f2f;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-name {
+    font-size: 13px;
+    color: #333;
+    margin-top: 0.5rem;
+}
+
+.full-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}

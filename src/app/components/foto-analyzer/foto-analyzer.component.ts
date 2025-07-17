@@ -23,7 +23,7 @@ export class FotoAnalyzerComponent {
   cameraPhoto: string | null = null;
   result: string = '';
   cameraActive: boolean[] = [false, false];
-  resultMessage: string = '';
+  //resultMessage: string = '';
   resultData: any = null;  
   validationMessage: string = '';
   isFromCamera: boolean[] = [false, false];
@@ -33,6 +33,8 @@ export class FotoAnalyzerComponent {
 
 
   onFileSelected(event: any, index: number): void {
+    this.resultData = null;
+    this.validationMessage = '';
     const file = event.target.files[0];
     if (!file) return;
 
@@ -60,6 +62,8 @@ startCamera(index: number) {
 
 
 takePhoto(index: number) {
+  this.resultData = null;
+  this.validationMessage = '';
   const videoElement = index === 0 ? this.video0.nativeElement : this.video1.nativeElement;
 
   const canvas = document.createElement('canvas');
@@ -91,11 +95,11 @@ takePhoto(index: number) {
 }
 
 async analizarFotos() {
-  this.resultMessage = '';
+  this.validationMessage = '';
   this.resultData = null;
 
   if (!this.imagePreviews[0] || !this.imagePreviews[1]) {
-    this.resultMessage = 'Por favor, sube o toma una foto en ambas secciones antes de analizar';
+    this.validationMessage = 'Por favor, sube o toma una foto en ambas secciones antes de analizar';
     return;
   }
 
@@ -112,15 +116,15 @@ async analizarFotos() {
       threshold: 0.5
     };
 
-    const response = await this.http.post<any>('https://fn-deep-face-chczfwd4dvhdh2eh.eastus2-01.azurewebsites.net/api/verifymetodo', body, {
+    const response = await this.http.post<any>('https://fn-deepface-verify-epbzg0hugjdfcnhw.eastus2-01.azurewebsites.net/api/verify', body, {
       headers: { 'Content-Type': 'application/json' }
     }).toPromise();
 
     this.resultData = response;
-    this.resultMessage = '';
+    this.validationMessage = '';
   } catch (error) {
     console.error('Error al analizar:', error);
-    this.resultMessage = 'Ocurrió un error al procesar las imágenes.';
+    this.resultData = 'Ocurrió un error al procesar las imágenes.';
   } finally {
     this.closeLoading();
   }
@@ -137,6 +141,8 @@ private dataURLtoBlob(dataURL: string): Blob {
 selectedImage: string | null = null;
 
 clearImage(index: number, fileInput: HTMLInputElement): void {
+  this.resultData = null;
+  this.validationMessage = '';
   this.imageFiles[index] = null!;
   this.imagePreviews[index] = null!;
   this.cameraActive[index] = false;
