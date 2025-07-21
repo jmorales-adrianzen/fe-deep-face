@@ -121,7 +121,7 @@ export class AtributosFacialesComponent {
         imagen: resizedImage1
       };
 
-      const response = await this.http.post<any>('https://fn-deepface-analyze-byewh7aeg5fedadd.eastus2-01.azurewebsites.net/api/analyze', body, {
+      const response = await this.http.post<any>('https://fn-deepface-analyze-race-gyhcavezeve8eucy.eastus2-01.azurewebsites.net/api/analyzerace', body, {
         headers: { 'Content-Type': 'application/json' }
       }).toPromise();
 
