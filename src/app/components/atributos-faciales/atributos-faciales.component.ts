@@ -103,10 +103,10 @@ export class AtributosFacialesComponent {
     this.fileInput.nativeElement.value = '';
   }
 
-
   async analizarFoto() {
     this.result = null;
     this.errorMessage = '';
+
     if (!this.imagePreview) {
       this.errorMessage = 'Por favor, sube o toma una foto antes de analizar.';
       return;
@@ -121,19 +121,60 @@ export class AtributosFacialesComponent {
         imagen: resizedImage1
       };
 
-      const response = await this.http.post<any>('https://fn-deepface-analyze-race-gyhcavezeve8eucy.eastus2-01.azurewebsites.net/api/analyzerace', body, {
-        headers: { 'Content-Type': 'application/json' }
-      }).toPromise();
+      const headers = { 'Content-Type': 'application/json' };
 
-      this.result = response;
+      const [responserace, responseage, responsegenderemotion] = await Promise.all([
+        this.http.post<any>('https://fn-deepface-analyze-race-gyhcavezeve8eucy.eastus2-01.azurewebsites.net/api/analyzerace', body, { headers }).toPromise().catch(e => null),
+        this.http.post<any>('https://fn-deepface-analyze-age-hpetdvfxeabkdmcw.eastus2-01.azurewebsites.net/api/analyzeage', body, { headers }).toPromise().catch(e => null),
+        this.http.post<any>('https://fn-deepface-analize-genderemotion-bva7aec9f8akgmgh.eastus2-01.azurewebsites.net/api/analyzegenderemotion', body, { headers }).toPromise().catch(e => null)
+      ]);
+
+      const safeGet = (obj: any, path: string[], fallback: any) => {
+        return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj) ?? fallback;
+      };
+
+      this.result = {
+        analysis: {
+          age: safeGet(responseage, ['analysis', 'age'], 0),
+          gender: {
+            dominant: safeGet(responsegenderemotion, ['analysis', 'gender', 'dominant'], ''),
+            confidence: {
+              Man: safeGet(responsegenderemotion, ['analysis', 'gender', 'confidence', 'Man'], 0.0),
+              Woman: safeGet(responsegenderemotion, ['analysis', 'gender', 'confidence', 'Woman'], 0.0)
+            }
+          },
+          emotion: {
+            dominant: safeGet(responsegenderemotion, ['analysis', 'emotion', 'dominant'], ''),
+            confidence: safeGet(responsegenderemotion, ['analysis', 'emotion', 'confidence'], {})
+          },
+          race: {
+            dominant: safeGet(responserace, ['analysis', 'race', 'dominant'], ''),
+            confidence: {
+              asian: safeGet(responserace, ['analysis', 'race', 'confidence', 'asian'], 0),
+              indian: safeGet(responserace, ['analysis', 'race', 'confidence', 'indian'], 0),
+              black: safeGet(responserace, ['analysis', 'race', 'confidence', 'black'], 0),
+              white: safeGet(responserace, ['analysis', 'race', 'confidence', 'white'], 0),
+              middle_eastern: safeGet(responserace, ['analysis', 'race', 'confidence', 'middle_eastern'], 0),
+              latino_hispanic: safeGet(responserace, ['analysis', 'race', 'confidence', 'latino_hispanic'], 0)
+            }
+          },
+          face_region: {
+            x: safeGet(responserace, ['analysis', 'face_region', 'x'], 0),
+            y: safeGet(responserace, ['analysis', 'face_region', 'y'], 0),
+            w: safeGet(responserace, ['analysis', 'face_region', 'w'], 0),
+            h: safeGet(responserace, ['analysis', 'face_region', 'h'], 0),
+            confidence: safeGet(responserace, ['analysis', 'face_region', 'confidence'], 0.0)
+          }
+        }
+      };
+
     } catch (error) {
       console.error('Error al analizar:', error);
       this.result = 'Ocurrió un error al procesar las imágenes.';
     } finally {
       this.closeLoading();
     }
-
-  }
+  }  
 
 
   private resizeImage(base64: string): Promise<string> {
