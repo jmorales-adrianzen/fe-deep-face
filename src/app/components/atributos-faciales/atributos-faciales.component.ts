@@ -128,6 +128,7 @@ export class AtributosFacialesComponent {
         this.http.post<any>('https://fn-deepface-analyze-age-hpetdvfxeabkdmcw.eastus2-01.azurewebsites.net/api/analyzeage', body, { headers }).toPromise().catch(e => null),
         this.http.post<any>('https://fn-deepface-analize-genderemotion-bva7aec9f8akgmgh.eastus2-01.azurewebsites.net/api/analyzegenderemotion', body, { headers }).toPromise().catch(e => null)
       ]);
+      
 
       const safeGet = (obj: any, path: string[], fallback: any) => {
         return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj) ?? fallback;
@@ -221,8 +222,14 @@ export class AtributosFacialesComponent {
     });
   }  
 
-  obtenerRazas(confidence: { [key: string]: number }): string[] {
-    return Object.keys(confidence);
+  obtenerRazasOrdenadas(confidence: { [key: string]: number }): string[] {
+    if (!confidence) return [];
+    return Object.keys(confidence).sort((a, b) => confidence[b] - confidence[a]);
+  }
+
+  obtenerEmocionesOrdenadas(confidence: { [key: string]: number }): string[] {
+    if (!confidence) return [];
+    return Object.keys(confidence).sort((a, b) => confidence[b] - confidence[a]);
   }
 
 
@@ -279,5 +286,11 @@ export class AtributosFacialesComponent {
     };
     return razas[raza] || raza;
   }
+
+getGeneroTraducido(genero: string): string {
+  if (genero === 'Man') return 'Hombre';
+  if (genero === 'Woman') return 'Mujer';
+  return '';
+}  
 
 }

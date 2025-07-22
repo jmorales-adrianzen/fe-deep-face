@@ -62,13 +62,8 @@
                 <li><strong>Edad estimada:</strong> {{ result.analysis.age }} años</li>
 
                 <li><strong>Género predominante:</strong> 
-                {{ result.analysis.gender.dominant === 'Man' ? 'Hombre' : 'Mujer' }}
+                {{ getGeneroTraducido(result.analysis.gender.dominant) }}
                 ({{ result.analysis.gender.confidence[result.analysis.gender.dominant] | number:'1.0-2' }}%)
-                </li>
-
-                <li><strong>Emoción predominante:</strong> 
-                {{ traducirEmocion(result.analysis.emotion.dominant) }}
-                ({{ result.analysis.emotion.confidence[result.analysis.emotion.dominant] | number:'1.0-2' }}%)
                 </li>
 
                 <li>
@@ -76,14 +71,28 @@
                 {{ traducirRaza(result.analysis.race.dominant) }}
                 </li>
            
-                <li>
+                <li *ngIf="result.analysis.race?.confidence">
                 <strong>Confianza por raza:</strong>
                 <ul>
-                    <li *ngFor="let raza of obtenerRazas(result.analysis.race.confidence)">
+                    <li *ngFor="let raza of obtenerRazasOrdenadas(result.analysis.race.confidence)">
                     {{ traducirRaza(raza) }}: {{ result.analysis.race.confidence[raza] | number:'1.0-2' }}%
                     </li>
                 </ul>
-                </li>                
+                </li>      
+                
+                <li><strong>Emoción predominante:</strong> 
+                {{ traducirEmocion(result.analysis.emotion.dominant) }}
+                ({{ result.analysis.emotion.confidence[result.analysis.emotion.dominant] | number:'1.0-2' }}%)
+                </li>   
+                
+                <li *ngIf="result.analysis.emotion?.confidence">
+                <strong>Confianza por emoción:</strong>
+                <ul>
+                    <li *ngFor="let emotion of obtenerEmocionesOrdenadas(result.analysis.emotion.confidence)">
+                    {{ traducirEmocion(emotion) }}: {{ result.analysis.emotion.confidence[emotion] | number:'1.0-2' }}%
+                    </li>
+                </ul>
+                </li>               
 
                 <li><strong>Región del rostro:</strong>
                 X: {{ result.analysis.face_region.x }},
