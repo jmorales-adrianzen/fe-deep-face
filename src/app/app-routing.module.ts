@@ -12,8 +12,8 @@ const routes: Routes = [
   { path: '', redirectTo: '/atributos-faciales', pathMatch: 'full' },
   { path: 'atributos-faciales', component: AtributosFacialesComponent },  
   { path: 'foto-analyzer', component: FotoAnalyzerComponent },
-  { path: 'parecido-padres', component: ParecidoPadresComponent },
-  { path: 'similitud-artista', component: SimilitudArtistaComponent },
+  //{ path: 'parecido-padres', component: ParecidoPadresComponent },
+  //{ path: 'similitud-artista', component: SimilitudArtistaComponent },
 ];
 
 @NgModule({
