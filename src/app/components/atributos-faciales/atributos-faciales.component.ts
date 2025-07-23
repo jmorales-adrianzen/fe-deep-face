@@ -293,9 +293,9 @@ export class AtributosFacialesComponent {
   traducirRaza(raza: string): string {
     const razas: { [key: string]: string } = {
       asian: 'Asiático',
-      indian: 'Indio',
-      black: 'Negro',
-      white: 'Blanco',
+      indian: 'Indú',
+      black: 'Africano',
+      white: 'Europeo',
       middle_eastern: 'Medio Oriente',
       latino_hispanic: 'Latino / Hispano'
     };
