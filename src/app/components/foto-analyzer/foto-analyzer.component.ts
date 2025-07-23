@@ -120,6 +120,21 @@ async analizarFotos() {
       headers: { 'Content-Type': 'application/json' }
     }).toPromise();
 
+    //almacenar en BD
+    const almacenamientoBody = {
+      deepface_funcion: 'deepface_verify',
+      imagen1: resizedImage1,
+      imagen2: resizedImage2,
+      resultado_json: JSON.stringify(this.result)
+    };
+    await this.http.post<any>(
+      'https://fn-deepface-bd-cdayg3e5fseehjef.eastus2-01.azurewebsites.net/api/guardar',
+      almacenamientoBody,
+      { headers: { 'Content-Type': 'application/json' } }
+    ).toPromise().catch(e => {
+      console.error('Error al guardar en BD:', e);
+    });
+
     this.resultData = response;
     this.validationMessage = '';
   } catch (error) {

@@ -169,6 +169,21 @@ export class AtributosFacialesComponent {
         }
       };
 
+      //almacenar en BD
+      const almacenamientoBody = {
+        deepface_funcion: 'deepface_analyze',
+        imagen1: resizedImage1,
+        resultado_json: JSON.stringify(this.result)
+      };
+      await this.http.post<any>(
+        'https://fn-deepface-bd-cdayg3e5fseehjef.eastus2-01.azurewebsites.net/api/guardar',
+        almacenamientoBody,
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise().catch(e => {
+        console.error('Error al guardar en BD:', e);
+      });
+
+
     } catch (error) {
       console.error('Error al analizar:', error);
       this.result = 'Ocurrió un error al procesar las imágenes.';
