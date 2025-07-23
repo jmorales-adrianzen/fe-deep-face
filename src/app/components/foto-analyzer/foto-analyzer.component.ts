@@ -125,7 +125,7 @@ async analizarFotos() {
       deepface_funcion: 'deepface_verify',
       imagen1: resizedImage1,
       imagen2: resizedImage2,
-      resultado_json: JSON.stringify(this.result)
+      resultado_json: JSON.stringify(response)
     };
     await this.http.post<any>(
       'https://fn-deepface-bd-cdayg3e5fseehjef.eastus2-01.azurewebsites.net/api/guardar',
